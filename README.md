@@ -65,5 +65,5 @@ http://localhost:3001
 
 ## ⚡ Autor
 
-* Nombre: TU NOMBRE
+* Nombre: Kevin Rojas
 * Curso: Full Stack Open 2024
