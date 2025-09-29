@@ -4,7 +4,7 @@ const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
 
-const contacts = [
+let contacts = [
     { 
       "id": 1,
       "name": "Arto Hellas", 
@@ -77,6 +77,7 @@ app.post('/persons', (req,res)=>{
       'name':req.body.name,
       'number':req.body.number
     }
+    contacts = contacts.concat(newContact)
     res.json(newContact)
   }
 })
@@ -88,3 +89,4 @@ const PORT = process.env.PORT || 3001
 app.listen(PORT,()=> {
   console.log('Server is runing on por:',PORT)
 })
+
