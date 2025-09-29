@@ -58,7 +58,7 @@ app.get('/persons/:id',(req,res)=>{
 
 app.delete('/persons/:id',(req,res)=>{
   const id = req.params.id
-  const newContacts = contacts.filter(objet => objet.id !== id )
+  const contacts = contacts.filter(objet => objet.id !== id )
   res.status(202).end()
 })
 
@@ -70,7 +70,6 @@ app.post('/persons', (req,res)=>{
     res.status(409).json({ error: 'name must be unique' })
   }
   else {
-    console.log('entree')
     const id = contacts.length + 1 
     const newContact = {
       'id':id,
