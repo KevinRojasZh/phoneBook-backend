@@ -33,18 +33,20 @@ app.use(cors())
 morgan.token('body', (req,res)=> JSON.stringify(req.body))
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
-
+//GET TODAS LOS CONTACTOS
 app.get('/persons', (request,response)=>{
   response.json(contacts)
   console.log(request)
 })
 
+//GET INFO DE LA AGENDA
 app.get('/info',(resquest,response)=>{
   const nContacts = contacts.length
   const date = new Date
   response.send(`<p>Phonebook has info for ${nContacts} contacts </p> <br/> <p>${date}</p>`)
 })
 
+//GET DETALLE CONTACTO
 app.get('/persons/:id',(req,res)=>{
   const id = Number(req.params.id)
   const contact = contacts.find(objet => objet.id === id)
@@ -56,12 +58,15 @@ app.get('/persons/:id',(req,res)=>{
   }
 })
 
+//DELETE CONTACTO
 app.delete('/persons/:id',(req,res)=>{
   const id = req.params.id
+  contactEliminated = contacts.filter(objet => objet.id == id )
   const contacts = contacts.filter(objet => objet.id !== id )
-  res.status(202).end()
+  res.json(contactEliminated)
 })
 
+//POST UN NUEVO CONTACTO
 app.post('/persons', (req,res)=>{
 
   if(req.body.number === '' || req.body.name === ''){
