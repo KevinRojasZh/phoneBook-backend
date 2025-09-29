@@ -61,9 +61,8 @@ app.get('/persons/:id',(req,res)=>{
 //DELETE CONTACTO
 app.delete('/persons/:id',(req,res)=>{
   const id = req.params.id
-  contactEliminated = contacts.filter(objet => objet.id == id )
-  const contacts = contacts.filter(objet => objet.id !== id )
-  res.json(contactEliminated)
+  let contacEliminated= contacts.splice(id,1)
+  res.json(contacEliminated)
 })
 
 //POST UN NUEVO CONTACTO
