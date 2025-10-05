@@ -1,94 +1,105 @@
 
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
+const Contact= require('./models/contact')
 
-let contacts = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
 
 
 app.use(express.json())
+
 app.use(cors())
-app.use(express.static('dist'))
+
+// app.use(express.static('dist'))
 morgan.token('body', (req,res)=> JSON.stringify(req.body))
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
-//GET TODAS LOS CONTACTOS
-app.get('/persons', (request,response)=>{
-  response.json(contacts)
-  console.log(request)
+
+//-------- METODOS -----------------------------------------
+
+//GET TODOS LOS CONTACTOS
+app.get('/persons', (req,res)=>{
+  Contact.find().then(allContacts => res.json(allContacts))
 })
 
 //GET INFO DE LA AGENDA
-app.get('/info',(resquest,response)=>{
-  const nContacts = contacts.length
-  const date = new Date
-  response.send(`<p>Phonebook has info for ${nContacts} contacts </p> <br/> <p>${date}</p>`)
-})
+// app.get('/info',(resquest,response)=>{
+//   const nContacts = contacts.length
+//   const date = new Date
+//   response.send(`<p>Phonebook has info for ${nContacts} contacts </p> <br/> <p>${date}</p>`)
+// })
 
 //GET DETALLE CONTACTO
-app.get('/persons/:id',(req,res)=>{
-  const id = Number(req.params.id)
-  const contact = contacts.find(objet => objet.id === id)
-
-  if(contact){
-    res.json(contact)
-  }else{
-    res.status(404).end()
-  }
+app.get('/persons/:id',(req,res,next )=>{
+  Contact.findById(req.params.id).then(contact=>{
+    if(contact){
+      res.json(contact)
+    }else{
+      res.status(404).end()
+    }
+  })
+  .catch(error => next(error))
 })
 
 //DELETE CONTACTO
-app.delete('/persons/:id',(req,res)=>{
-  const id = req.params.id
-  let contacEliminated= contacts.splice(id,1)
-  res.json(contacEliminated)
+app.delete('/persons/:id',(req,res,next)=>{
+  
+  Contact.findByIdAndDelete(req.params.id)
+  .then(result => res.status(204).end())
+  .catch(error => next(error))
 })
 
 //POST UN NUEVO CONTACTO
-app.post('/persons', (req,res)=>{
+app.post('/persons', (req,res,next)=>{
+  const body = req.body
 
-  if(req.body.number === '' || req.body.name === ''){
+  if( body.number === '' || body.name === ''){
     res.status(409).json({ error: 'All fields are required' })
-  }else if(contacts.some(contact => contact.name === req.body.name)){
-    res.status(409).json({ error: 'name must be unique' })
-  }
-  else {
-    const id = contacts.length + 1 
-    const newContact = {
-      'id':id,
-      'name':req.body.name,
-      'number':req.body.number
-    }
-    contacts = contacts.concat(newContact)
-    res.json(newContact)
+  }else {
+    const newContact = new Contact ({
+      'name': body.name,
+      'number': body.number
+    })
+    newContact.save()
+    .then(saveContact => res.json(saveContact))
+    .catch(error=> next(error))
   }
 })
+// UPDATE DE UN CONTACTO
+app.put('/persons/:id',(req,res,next)=>{
+  const body = req.body
 
+  const newContact = {
+      'name': body.name,
+      'number': body.number
+    }
+    Contact.findByIdAndUpdate(req.params.id,newContact,{new:true, runValidators:true, context:'query'})
+    .then(updateContact=>{
+      return res.json(updateContact)
+    })
+    .catch(error=>{
+      next(error)
+    })
+})
 
+// -----------------------------------------------------
 
-const PORT = process.env.PORT || 3001
+const errorHendler = (error, req, res, next)=> {
+  console.log(error.message)
+  if (error.name === 'CastError'){
+    return res.status(400).send({error :'malformatted id'})
+  }else if (error.name === 'ValidationError') {
+    return res.status(400).send({error :'Some data are incorrect,try again'})
+  }
+  next(error)
+}
+
+app.use(errorHendler)
+
+const PORT = process.env.PORT 
+
 
 app.listen(PORT,()=> {
   console.log('Server is runing on por:',PORT)
