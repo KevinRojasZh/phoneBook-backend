@@ -33,9 +33,9 @@ console.log('conecting to', url )
 
 mongoose.connect(url)
 .then(()=> console.log('Connected to MongoDB'))
-.catch(error =>console.loog('ERROR',error.message))
+.catch(error =>console.log('ERROR',error.message))
 
 
 
 
-module.exports = mongoose.model('Contact', contactSchema)
+module.exports = Contact
