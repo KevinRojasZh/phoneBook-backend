@@ -20,7 +20,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 //-------- METODOS -----------------------------------------
 
 //GET TODOS LOS CONTACTOS
-app.get('api/persons', (req,res)=>{
+app.get('/api/persons', (req,res)=>{
   Contact.find().then(allContacts => res.json(allContacts))
 })
 
@@ -32,7 +32,7 @@ app.get('api/persons', (req,res)=>{
 // })
 
 //GET DETALLE CONTACTO
-app.get('api/persons/:id',(req,res,next )=>{
+app.get('/api/persons/:id',(req,res,next )=>{
   Contact.findById(req.params.id).then(contact=>{
     if(contact){
       res.json(contact)
@@ -44,7 +44,7 @@ app.get('api/persons/:id',(req,res,next )=>{
 })
 
 //DELETE CONTACTO
-app.delete('api/persons/:id',(req,res,next)=>{
+app.delete('/api/persons/:id',(req,res,next)=>{
   
   Contact.findByIdAndDelete(req.params.id)
   .then(result => res.status(204).end())
@@ -52,7 +52,7 @@ app.delete('api/persons/:id',(req,res,next)=>{
 })
 
 //POST UN NUEVO CONTACTO
-app.post('api/persons', (req,res,next)=>{
+app.post('/api/persons', (req,res,next)=>{
   const body = req.body
 
   if( body.number === '' || body.name === ''){
@@ -68,7 +68,7 @@ app.post('api/persons', (req,res,next)=>{
   }
 })
 // UPDATE DE UN CONTACTO
-app.put('api/persons/:id',(req,res,next)=>{
+app.put('/api/persons/:id',(req,res,next)=>{
   const body = req.body
 
   const newContact = {
