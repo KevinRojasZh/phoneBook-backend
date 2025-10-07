@@ -1,9 +1,5 @@
 const mongoose = require('mongoose')
 
-mongoose.set('strictQuery', false)
-
-const url = process.env.MONGODB_URI
-
 const contactSchema = new mongoose.Schema({
   name:{
     type:String,
@@ -13,7 +9,13 @@ const contactSchema = new mongoose.Schema({
     number:{
     type:String,
     required: true,
-    minLength:9
+    minLength:9,
+    validate:{
+      validator: function(v){
+      return /\d{3}-\d{3}-\d{3}/.test(v)
+      },
+      message:props => `${props.value} isn't fromated correct`
+      }
     }
 })
 
@@ -21,21 +23,12 @@ const Contact = mongoose.model('Contact', contactSchema)
 
 
 contactSchema.set('toJSON',{
-  transform:(document,returnedObject)=>{
+  transform:(document,returnedObject) => {
     returnedObject.id= returnedObject._id.toString()
     delete returnedObject._id
     delete returnedObject.__v
   }
 })
-
-
-console.log('conecting to', url )
-
-mongoose.connect(url)
-.then(()=> console.log('Connected to MongoDB'))
-.catch(error =>console.log('ERROR',error.message))
-
-
 
 
 module.exports = Contact
